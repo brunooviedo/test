@@ -20,22 +20,21 @@ tabla_sismos = soup.find('table', attrs={'class':'sismologia detalle'})
 # Obtenemos todas las filass
 rows = tabla_sismos.find_all('tr')
 
-output_data = []
-for row in rows:
-    cells = row.find_all('th')
-    output_dat = []
-    if len(cells) > 0:
-        for cell in cells:
-            output_data.append(cell.text)
-            output_data.append(output_dat)
+# output_data = []
+# for row in rows:
+#     cells = row.find_all('th')
+#     output_dat = []
+#     if len(cells) > 0:
+#         for cell in cells:
+#             output_data.append(cell.text)
+#             output_data.append(output_dat)
 
-dataset = pd.DataFrame(output_data)
+# dataset = pd.DataFrame(output_data)
 
 delimiter = ","                          # unambiguous string
 for line_break in soup.findAll('br'):       # loop through line break tags
     line_break.replaceWith(delimiter)       # replace br tags with delimiter
 strings = soup.get_text().split(delimiter)  # get list of strings
-
 
 output_rows = []
 for row in rows:
@@ -47,7 +46,7 @@ for row in rows:
             output_row.append(cell.get_text())
             output_rows.append(output_row)
 
-dataset = pd.DataFrame(output_rows)
+dataset = pd.DataFrame(output_rows).drop_duplicates()
 
 
 dataset.columns = [
@@ -76,6 +75,8 @@ dataset_filter = dataset[
             & (dataset["Longitud"] <= -66.180)
             ]
 
+
+
 tranque = (-24.39,-69.14)
 
 latitud1 = dataset_filter['Latitud'].values[0]
@@ -94,7 +95,7 @@ print (distancia)
 # dataset.to_excel("test.xlsx")
 # dataset[["Fecha Local", "Lugar"]] = dataset["Fecha Local / Lugar"].str.replace(" ","", 1)
 
-dataset.to_excel("test.xlsx")
+dataset_filter.to_excel("test.xlsx")
 
 # dataset[["Latitud", "Longitud"]] = dataset[["Latitud", "Longitud"]].apply(pd.to_numeric)
 # dataset_filter = dataset[
