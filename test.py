@@ -6,7 +6,6 @@ import requests
 from datetime import datetime
 import urllib.request
 import pandas as pd
-import gunicorn
 
 tiempo = datetime.today().strftime('%Y/%m/%Y%m%d')
 
@@ -59,12 +58,41 @@ dataset.columns = [
         "Magnitud (2)",
     ]
 
-dataset[["Fecha Local / Lugar"]] = dataset[["Fecha Local / Lugar"]].astype(str)
+# dataset[["Fecha Local / Lugar"]] = dataset[["Fecha Local / Lugar"]].astype(str)
 
-# dataset[["Fecha Local", "Lugar"]] = dataset["Fecha Local / Lugar"].str.split(r"km|SO", expand=True)
+# dataset["Fecha Local / Lugar"].str.replace(" ","", 1)
+
+
+dataset[["Fecha Local", "Lugar"]] = dataset["Fecha Local / Lugar"].str.split(r",", expand=True)
+
+dataset[["Latitud", "Longitud"]] = dataset["Latitud / Longitud"].str.split(r",", expand=True)
+
+dataset[["Latitud", "Longitud"]] = dataset[["Latitud", "Longitud"]].apply(pd.to_numeric)
+
+dataset_filter = dataset[
+            (-27.100 <= dataset["Latitud"])
+            & (dataset["Latitud"] <= -21.680)
+            & (-72.150 <= dataset["Longitud"])
+            & (dataset["Longitud"] <= -66.180)
+            ]
+
+tranque = (-24.39,-69.14)
+
+latitud1 = dataset_filter['Latitud'].values[0]
+longitud1 = dataset_filter['Longitud'].values[0]
+profundidad = dataset_filter['Profundidad'].values[0]
+magnitud = dataset_filter['Magnitud (2)'].values[0]
+magnitud2 = magnitud.split(' ')
+magnitud3 = float(magnitud2[0])
+magnitud4 = magnitud2[1]
+delhi = (latitud1, longitud1)
+distancia = int(round((geodesic(tranque, delhi).km)))
+
+print (magnitud3)
+print (distancia)
 
 # dataset.to_excel("test.xlsx")
-dataset[["Fecha Local", "Lugar"]] = dataset["Fecha Local / Lugar"].str.split('[, ]',1, expand=True)
+# dataset[["Fecha Local", "Lugar"]] = dataset["Fecha Local / Lugar"].str.replace(" ","", 1)
 
 dataset.to_excel("test.xlsx")
 
@@ -76,4 +104,4 @@ dataset.to_excel("test.xlsx")
 #             & (dataset["Longitud"] <= -66.180)
 #             ]
 
-print (dataset)
+print (dataset_filter)
